@@ -64,10 +64,12 @@ class GTSR_DataSet(Dataset):
 ```
 Creating our Train and Test DataSet Object.
 And we use DataLoaders to Properly Load and implement our Data into the Model Later.
+
 ```python
 training_set = GTSR_DataSet(train_df,data_dir,transform=transforms)
 test_set = GTSR_DataSet(test_df,data_dir,transform=transforms)
 ```
+
 ```python
 train_loader = DataLoader(dataset = training_set, batch_size=batch_size, shuffle=True)
 test_loader = DataLoader(dataset = test_set, batch_size=batch_size, shuffle=False)
