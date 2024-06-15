@@ -760,17 +760,17 @@ epoch 9 / 10, Rprop accuracy = 91.44893111638956
 epoch 10 / 10, Rprop accuracy = 91.97941409342835
 ```
 # Best Final Results Per Optimizer:
-```
-Rprop accuracy = 96.06492478226446
-RMSprop accuracy = 97.6959619952494
-RAdam accuracy = 97.89390340459224
-NAdam accuracy = 97.53760886777513
-__Adamax accuracy = 98.49564528899447__
-AdamW accuracy = 97.61678543151227
-Adagrad accuracy = 97.70387965162311
-Adadelta accuracy = 96.83293745051465
-ASGD accuracy = 96.78543151227237
-ADAM accuracy = 97.06254948535233
-SGD accuracy = 96.57957244655582
-```
+
+### Adamax accuracy = 98.49564528899447 
+##### Rprop accuracy = 96.06492478226446
+##### RMSprop accuracy = 97.6959619952494
+##### RAdam accuracy = 97.89390340459224
+##### NAdam accuracy = 97.53760886777513
+##### AdamW accuracy = 97.61678543151227
+##### Adagrad accuracy = 97.70387965162311
+##### Adadelta accuracy = 96.83293745051465
+##### ASGD accuracy = 96.78543151227237
+##### ADAM accuracy = 97.06254948535233
+##### SGD accuracy = 96.57957244655582
+
 
