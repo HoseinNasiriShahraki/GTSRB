@@ -1,11 +1,10 @@
 ### GTSRB
-A CNN (Convolutional Neural Network) for German traffic sign image classification.
+A Convolutional Neural Network (CNN) for German traffic sign classification using the GTSRB dataset. This project classifies German traffic signs into 43 different categories, providing a high-accuracy solution for recognizing and distinguishing road signs.
 
 ![First_pic](https://github.com/HoseinNasiriShahraki/GTSRB/blob/main/Examples/00006.png?raw=true "First_pic") ![second_pic](https://github.com/HoseinNasiriShahraki/GTSRB/blob/main/Examples/00009.png?raw=true "First_pic") ![second_pic](https://github.com/HoseinNasiriShahraki/GTSRB/blob/main/Examples/00042.png?raw=true "First_pic") ![second_pic](https://github.com/HoseinNasiriShahraki/GTSRB/blob/main/Examples/00051.png?raw=true "First_pic") ![second_pic](https://github.com/HoseinNasiriShahraki/GTSRB/blob/main/Examples/00086.png?raw=true "First_pic") ![second_pic](https://github.com/HoseinNasiriShahraki/GTSRB/blob/main/Examples/00093.png?raw=true "First_pic") ![second_pic](https://github.com/HoseinNasiriShahraki/GTSRB/blob/main/Examples/00174.png?raw=true "First_pic")
 
 
-GTSRB (German Traffic Sign Recognition) is a german traffic sign dataset with 43 classes.
-The DataSet has 51,839 pictures of Different Traffic signs with various Brightness levels, image sizes, camera angles......
+The GTSRB dataset contains 51,839 images of 43 different classes, each representing a type of traffic sign. These images vary in brightness, size, and angle, providing a realistic dataset for training robust machine learning models.
 
 
 We begin our process with importing our needed libraries.
@@ -34,14 +33,17 @@ test_df = pd.read_csv('./GTSRB/Test.csv')
 ```
 
 
-We transform our images using Torch Transform library.
-With Transforms.Compose we can implement various Transforms and Augmentation to our images.
+Images are transformed using the torchvision.transforms library to enhance model performance. The transformations applied are:
+##### Resize: Adjust images to 28x28 pixels.
+##### Normalization: Standardize the pixel values.
+##### Tensor Conversion: Convert images to PyTorch tensors.
 ```pyton
 transforms = torchvision.transforms.Compose([torchvision.transforms.ToTensor(),torchvision.transforms.Resize((28,28)),
     torchvision.transforms.Normalize(mean=[0.5, 0.5, 0.5], std=[0.5, 0.5, 0.5])])
 ```
 
-We Create our DataSet Class and define the "__len__" and "__get__item__" functions.
+### Custom Dataset Class
+A custom dataset class, GTSR_DataSet, is created to load and prepare images and labels for training.
 ```python
 #creating the dataset class
 class GTSR_DataSet(Dataset):
@@ -83,7 +85,7 @@ output:
 {'training': 39209, 'testing': 12630}
 ```
 ## Model
-We define every Layer of our DeepLearning Procces in our Model Class:
+The model GTRSB_Model is built with multiple convolutional and fully connected layers to handle complex features of traffic signs.
 Then We Create our Desiered image Proccesing Pipeline in "__Forward__" Method. 
 ```python
 #creating the model
@@ -221,556 +223,58 @@ for epoch in range(10):
             n_correct +=(predictions == labels).sum().item()
         acc = 100.0 * (n_correct / n_samples)
         print(f'epoch {epoch+1} / 10, SGD accuracy = {acc}')
-        
-        
 
-print("---------------------------------")
-
-
-        
-        
-
-# model deployment with Adam optimizer
-criterion = nn.CrossEntropyLoss()
-optimizer = torch.optim.Adam(model.parameters(), lr=learning_rate)
-for epoch in range(10):
-    for i, (images, labels) in enumerate(train_loader):
-        # images, labels = images.type(torch.LongTensor), labels.type(torch.LongTensor)
-        images = images.to(device)
-        labels = labels.to(device)
-
-        outputs = model(images)
-        loss = criterion(outputs, labels)
-        
-        
-
-        optimizer.zero_grad()
-        loss.backward()
-        optimizer.step()
-
-        # if (i+1) % 500 == 0:
-        #     print(f'epoch {epoch+1} / {num_epochs}, step {i+1}, loss = {loss.item()}')
-
-    with torch.no_grad():
-        n_correct = 0
-        n_samples = 0
-        for images, labels in test_loader:
-            images, labels = images.type(torch.cuda.FloatTensor), labels.type(torch.cuda.FloatTensor)
-            labels = labels.to(device)
-            outputs = model(images)
-
-            _, predictions = torch.max(outputs, 1)
-            n_samples +=labels.shape[0]
-            n_correct +=(predictions == labels).sum().item()
-        acc = 100.0 * (n_correct / n_samples)
-        print(f'epoch {epoch+1} / 10, ADAM accuracy = {acc}')
-        
-        
-        
-
-print("---------------------------------")
-
-
-        
-
-# model deployment with ASGD Optimizer
-criterion = nn.CrossEntropyLoss()
-optimizer = torch.optim.ASGD(model.parameters(), lr=learning_rate)
-for epoch in range(10):
-    for i, (images, labels) in enumerate(train_loader):
-        # images, labels = images.type(torch.LongTensor), labels.type(torch.LongTensor)
-        images = images.to(device)
-        labels = labels.to(device)
-
-        outputs = model(images)
-        loss = criterion(outputs, labels)
-        
-        
-
-        optimizer.zero_grad()
-        loss.backward()
-        optimizer.step()
-
-        # if (i+1) % 500 == 0:
-        #     print(f'epoch {epoch+1} / {num_epochs}, step {i+1}, loss = {loss.item()}')
-
-    with torch.no_grad():
-        n_correct = 0
-        n_samples = 0
-        for images, labels in test_loader:
-            images, labels = images.type(torch.cuda.FloatTensor), labels.type(torch.cuda.FloatTensor)
-            labels = labels.to(device)
-            outputs = model(images)
-
-            _, predictions = torch.max(outputs, 1)
-            n_samples +=labels.shape[0]
-            n_correct +=(predictions == labels).sum().item()
-        acc = 100.0 * (n_correct / n_samples)
-        print(f'epoch {epoch+1} / 10, ASGD accuracy = {acc}')
-        
-        
-        
-
-print("---------------------------------")
-
-
-
-
-# model deployment with Adadelta Optimizer
-criterion = nn.CrossEntropyLoss()
-optimizer = torch.optim.Adadelta(model.parameters(), lr=learning_rate , rho=0.9)
-for epoch in range(10):
-    for i, (images, labels) in enumerate(train_loader):
-        # images, labels = images.type(torch.LongTensor), labels.type(torch.LongTensor)
-        images = images.to(device)
-        labels = labels.to(device)
-
-        outputs = model(images)
-        loss = criterion(outputs, labels)
-        
-        
-
-        optimizer.zero_grad()
-        loss.backward()
-        optimizer.step()
-
-        # if (i+1) % 500 == 0:
-        #     print(f'epoch {epoch+1} / {num_epochs}, step {i+1}, loss = {loss.item()}')
-
-    with torch.no_grad():
-        n_correct = 0
-        n_samples = 0
-        for images, labels in test_loader:
-            images, labels = images.type(torch.cuda.FloatTensor), labels.type(torch.cuda.FloatTensor)
-            labels = labels.to(device)
-            outputs = model(images)
-
-            _, predictions = torch.max(outputs, 1)
-            n_samples +=labels.shape[0]
-            n_correct +=(predictions == labels).sum().item()
-        acc = 100.0 * (n_correct / n_samples)
-        print(f'epoch {epoch+1} / 10, Adadelta accuracy = {acc}')
-        
-        
-
-print("---------------------------------")
-
-
-# model deployment with Adagrad Optimizer
-criterion = nn.CrossEntropyLoss()
-optimizer = torch.optim.Adagrad(model.parameters(), lr=learning_rate)
-for epoch in range(10):
-    for i, (images, labels) in enumerate(train_loader):
-        # images, labels = images.type(torch.LongTensor), labels.type(torch.LongTensor)
-        images = images.to(device)
-        labels = labels.to(device)
-
-        outputs = model(images)
-        loss = criterion(outputs, labels)
-        
-        
-
-        optimizer.zero_grad()
-        loss.backward()
-        optimizer.step()
-
-        # if (i+1) % 500 == 0:
-        #     print(f'epoch {epoch+1} / {num_epochs}, step {i+1}, loss = {loss.item()}')
-
-    with torch.no_grad():
-        n_correct = 0
-        n_samples = 0
-        for images, labels in test_loader:
-            images, labels = images.type(torch.cuda.FloatTensor), labels.type(torch.cuda.FloatTensor)
-            labels = labels.to(device)
-            outputs = model(images)
-
-            _, predictions = torch.max(outputs, 1)
-            n_samples +=labels.shape[0]
-            n_correct +=(predictions == labels).sum().item()
-        acc = 100.0 * (n_correct / n_samples)
-        print(f'epoch {epoch+1} / 10, Adagrad accuracy = {acc}')
-        
-        
-
-print("---------------------------------")
-
-        
-        
-# model deployment with AdamW Optimizer
-criterion = nn.CrossEntropyLoss()
-optimizer = torch.optim.AdamW(model.parameters(), lr=learning_rate)
-for epoch in range(10):
-    for i, (images, labels) in enumerate(train_loader):
-        # images, labels = images.type(torch.LongTensor), labels.type(torch.LongTensor)
-        images = images.to(device)
-        labels = labels.to(device)
-
-        outputs = model(images)
-        loss = criterion(outputs, labels)
-        
-        
-
-        optimizer.zero_grad()
-        loss.backward()
-        optimizer.step()
-
-        # if (i+1) % 500 == 0:
-        #     print(f'epoch {epoch+1} / {num_epochs}, step {i+1}, loss = {loss.item()}')
-
-    with torch.no_grad():
-        n_correct = 0
-        n_samples = 0
-        for images, labels in test_loader:
-            images, labels = images.type(torch.cuda.FloatTensor), labels.type(torch.cuda.FloatTensor)
-            labels = labels.to(device)
-            outputs = model(images)
-
-            _, predictions = torch.max(outputs, 1)
-            n_samples +=labels.shape[0]
-            n_correct +=(predictions == labels).sum().item()
-        acc = 100.0 * (n_correct / n_samples)
-        print(f'epoch {epoch+1} / 10, AdamW accuracy = {acc}')
-        
-        
-
-print("---------------------------------")
-
-
-        
-        
-# model deployment with Adamax Optimizer
-criterion = nn.CrossEntropyLoss()
-optimizer = torch.optim.Adamax(model.parameters(), lr=learning_rate)
-for epoch in range(10):
-    for i, (images, labels) in enumerate(train_loader):
-        # images, labels = images.type(torch.LongTensor), labels.type(torch.LongTensor)
-        images = images.to(device)
-        labels = labels.to(device)
-
-        outputs = model(images)
-        loss = criterion(outputs, labels)
-        
-        
-
-        optimizer.zero_grad()
-        loss.backward()
-        optimizer.step()
-
-        # if (i+1) % 500 == 0:
-        #     print(f'epoch {epoch+1} / {num_epochs}, step {i+1}, loss = {loss.item()}')
-
-    with torch.no_grad():
-        n_correct = 0
-        n_samples = 0
-        for images, labels in test_loader:
-            images, labels = images.type(torch.cuda.FloatTensor), labels.type(torch.cuda.FloatTensor)
-            labels = labels.to(device)
-            outputs = model(images)
-
-            _, predictions = torch.max(outputs, 1)
-            n_samples +=labels.shape[0]
-            n_correct +=(predictions == labels).sum().item()
-        acc = 100.0 * (n_correct / n_samples)
-        print(f'epoch {epoch+1} / 10, Adamax accuracy = {acc}')
-        
-        
-
-print("---------------------------------")        
-
-        
-# model deployment with NAdam Optimizer
-criterion = nn.CrossEntropyLoss()
-optimizer = torch.optim.NAdam(model.parameters(), lr=learning_rate)
-for epoch in range(10):
-    for i, (images, labels) in enumerate(train_loader):
-        # images, labels = images.type(torch.LongTensor), labels.type(torch.LongTensor)
-        images = images.to(device)
-        labels = labels.to(device)
-
-        outputs = model(images)
-        loss = criterion(outputs, labels)
-        
-        
-
-        optimizer.zero_grad()
-        loss.backward()
-        optimizer.step()
-
-        # if (i+1) % 500 == 0:
-        #     print(f'epoch {epoch+1} / {num_epochs}, step {i+1}, loss = {loss.item()}')
-
-    with torch.no_grad():
-        n_correct = 0
-        n_samples = 0
-        for images, labels in test_loader:
-            images, labels = images.type(torch.cuda.FloatTensor), labels.type(torch.cuda.FloatTensor)
-            labels = labels.to(device)
-            outputs = model(images)
-
-            _, predictions = torch.max(outputs, 1)
-            n_samples +=labels.shape[0]
-            n_correct +=(predictions == labels).sum().item()
-        acc = 100.0 * (n_correct / n_samples)
-        print(f'epoch {epoch+1} / 10, NAdam accuracy = {acc}')
-        
-        
-
-print("---------------------------------")
-
-
-        
-# model deployment with RAdam Optimizer
-criterion = nn.CrossEntropyLoss()
-optimizer = torch.optim.RAdam(model.parameters(), lr=learning_rate)
-for epoch in range(10):
-    for i, (images, labels) in enumerate(train_loader):
-        # images, labels = images.type(torch.LongTensor), labels.type(torch.LongTensor)
-        images = images.to(device)
-        labels = labels.to(device)
-
-        outputs = model(images)
-        loss = criterion(outputs, labels)
-        
-        
-
-        optimizer.zero_grad()
-        loss.backward()
-        optimizer.step()
-
-        # if (i+1) % 500 == 0:
-        #     print(f'epoch {epoch+1} / {num_epochs}, step {i+1}, loss = {loss.item()}')
-
-    with torch.no_grad():
-        n_correct = 0
-        n_samples = 0
-        for images, labels in test_loader:
-            images, labels = images.type(torch.cuda.FloatTensor), labels.type(torch.cuda.FloatTensor)
-            labels = labels.to(device)
-            outputs = model(images)
-
-            _, predictions = torch.max(outputs, 1)
-            n_samples +=labels.shape[0]
-            n_correct +=(predictions == labels).sum().item()
-        acc = 100.0 * (n_correct / n_samples)
-        print(f'epoch {epoch+1} / 10, RAdam accuracy = {acc}')
-        
-        
-        
-print("---------------------------------")
-
-        
-# model deployment with RMSprop Optimizer
-criterion = nn.CrossEntropyLoss()
-optimizer = torch.optim.RMSprop(model.parameters(), lr=learning_rate)
-for epoch in range(10):
-    for i, (images, labels) in enumerate(train_loader):
-        # images, labels = images.type(torch.LongTensor), labels.type(torch.LongTensor)
-        images = images.to(device)
-        labels = labels.to(device)
-
-        outputs = model(images)
-        loss = criterion(outputs, labels)
-        
-        
-
-        optimizer.zero_grad()
-        loss.backward()
-        optimizer.step()
-
-        # if (i+1) % 500 == 0:
-        #     print(f'epoch {epoch+1} / {num_epochs}, step {i+1}, loss = {loss.item()}')
-
-    with torch.no_grad():
-        n_correct = 0
-        n_samples = 0
-        for images, labels in test_loader:
-            images, labels = images.type(torch.cuda.FloatTensor), labels.type(torch.cuda.FloatTensor)
-            labels = labels.to(device)
-            outputs = model(images)
-
-            _, predictions = torch.max(outputs, 1)
-            n_samples +=labels.shape[0]
-            n_correct +=(predictions == labels).sum().item()
-        acc = 100.0 * (n_correct / n_samples)
-        print(f'epoch {epoch+1} / 10, RMSprop accuracy = {acc}')
-        
-
-
-print("---------------------------------")
-
-        
-        
-# model deployment with Rprop Optimizer
-criterion = nn.CrossEntropyLoss()
-optimizer = torch.optim.Rprop(model.parameters(), lr=learning_rate)
-for epoch in range(10):
-    for i, (images, labels) in enumerate(train_loader):
-        # images, labels = images.type(torch.LongTensor), labels.type(torch.LongTensor)
-        images = images.to(device)
-        labels = labels.to(device)
-
-        outputs = model(images)
-        loss = criterion(outputs, labels)
-        
-        
-
-        optimizer.zero_grad()
-        loss.backward()
-        optimizer.step()
-
-        # if (i+1) % 500 == 0:
-        #     print(f'epoch {epoch+1} / {num_epochs}, step {i+1}, loss = {loss.item()}')
-
-    with torch.no_grad():
-        n_correct = 0
-        n_samples = 0
-        for images, labels in test_loader:
-            images, labels = images.type(torch.cuda.FloatTensor), labels.type(torch.cuda.FloatTensor)
-            labels = labels.to(device)
-            outputs = model(images)
-
-            _, predictions = torch.max(outputs, 1)
-            n_samples +=labels.shape[0]
-            n_correct +=(predictions == labels).sum().item()
-        acc = 100.0 * (n_correct / n_samples)
-        print(f'epoch {epoch+1} / 10, Rprop accuracy = {acc}')
 ```
 After 2 Hours of Trainning Here Are The Final Results:
 ```
 epoch 1 / 10, SGD accuracy = 91.07680126682503
-epoch 2 / 10, SGD accuracy = 93.95882818685669
-epoch 3 / 10, SGD accuracy = 95.49485352335708
-epoch 4 / 10, SGD accuracy = 95.53444180522565
-epoch 5 / 10, SGD accuracy = 95.71654790182106
-epoch 6 / 10, SGD accuracy = 96.27870150435471
-epoch 7 / 10, SGD accuracy = 96.3341250989707
-epoch 8 / 10, SGD accuracy = 96.41330166270784
-epoch 9 / 10, SGD accuracy = 96.40538400633413
 epoch 10 / 10, SGD accuracy = 96.57957244655582
 ---------------------------------
 epoch 1 / 10, ADAM accuracy = 94.48139350752177
-epoch 2 / 10, ADAM accuracy = 95.63737133808394
-epoch 3 / 10, ADAM accuracy = 95.23357086302454
-epoch 4 / 10, ADAM accuracy = 94.98020585906572
-epoch 5 / 10, ADAM accuracy = 95.81947743467933
-epoch 6 / 10, ADAM accuracy = 95.89865399841648
-epoch 7 / 10, ADAM accuracy = 94.64766429136976
-epoch 8 / 10, ADAM accuracy = 95.57403008709421
-epoch 9 / 10, ADAM accuracy = 97.06254948535233
 epoch 10 / 10, ADAM accuracy = 96.04908946951703
 ---------------------------------
 epoch 1 / 10, ASGD accuracy = 96.31037212984957
-epoch 2 / 10, ASGD accuracy = 96.326207442597
-epoch 3 / 10, ASGD accuracy = 96.57165479018211
-epoch 4 / 10, ASGD accuracy = 96.48456057007125
-epoch 5 / 10, ASGD accuracy = 96.54790182106096
-epoch 6 / 10, ASGD accuracy = 96.55581947743468
-epoch 7 / 10, ASGD accuracy = 96.65874901029295
-epoch 8 / 10, ASGD accuracy = 96.70625494853523
-epoch 9 / 10, ASGD accuracy = 96.78543151227237
 epoch 10 / 10, ASGD accuracy = 96.66666666666667
 ---------------------------------
 epoch 1 / 10, Adadelta accuracy = 96.66666666666667
-epoch 2 / 10, Adadelta accuracy = 96.69833729216151
-epoch 3 / 10, Adadelta accuracy = 96.60332541567695
-epoch 4 / 10, Adadelta accuracy = 96.83293745051465
-epoch 5 / 10, Adadelta accuracy = 96.71417260490894
-epoch 6 / 10, Adadelta accuracy = 96.8012668250198
-epoch 7 / 10, Adadelta accuracy = 96.70625494853523
-epoch 8 / 10, Adadelta accuracy = 96.75376088677751
-epoch 9 / 10, Adadelta accuracy = 96.71417260490894
 epoch 10 / 10, Adadelta accuracy = 96.72209026128266
 ---------------------------------
 epoch 1 / 10, Adagrad accuracy = 97.36342042755345
-epoch 2 / 10, Adagrad accuracy = 97.37925574030088
-epoch 3 / 10, Adagrad accuracy = 97.41884402216944
-epoch 4 / 10, Adagrad accuracy = 97.513855898654
-epoch 5 / 10, Adagrad accuracy = 97.42676167854314
-epoch 6 / 10, Adagrad accuracy = 97.64845605700712
-epoch 7 / 10, Adagrad accuracy = 97.59303246239112
-epoch 8 / 10, Adagrad accuracy = 97.70387965162311
-epoch 9 / 10, Adagrad accuracy = 97.6959619952494
 epoch 10 / 10, Adagrad accuracy = 97.70387965162311
 ---------------------------------
 epoch 1 / 10, AdamW accuracy = 97.2763262074426
-epoch 2 / 10, AdamW accuracy = 96.0332541567696
-epoch 3 / 10, AdamW accuracy = 96.31037212984957
-epoch 4 / 10, AdamW accuracy = 96.59540775930324
-epoch 5 / 10, AdamW accuracy = 97.31591448931115
-epoch 6 / 10, AdamW accuracy = 97.61678543151227
-epoch 7 / 10, AdamW accuracy = 95.47901821060965
-epoch 8 / 10, AdamW accuracy = 97.26840855106889
-epoch 9 / 10, AdamW accuracy = 96.95170229612035
 epoch 10 / 10, AdamW accuracy = 96.98337292161521
 ---------------------------------
 epoch 1 / 10, Adamax accuracy = 98.08392715756136
-epoch 2 / 10, Adamax accuracy = 98.06017418844021
-epoch 3 / 10, Adamax accuracy = 98.24228028503563
-epoch 4 / 10, Adamax accuracy = 98.29770387965162
-epoch 5 / 10, Adamax accuracy = 98.33729216152018
-epoch 6 / 10, Adamax accuracy = 98.37688044338876
-epoch 7 / 10, Adamax accuracy = 98.49564528899447
-epoch 8 / 10, Adamax accuracy = 98.27395091053049
-epoch 9 / 10, Adamax accuracy = 98.44813935075217
 epoch 10 / 10, Adamax accuracy = 98.36104513064133
 ---------------------------------
 epoch 1 / 10, NAdam accuracy = 95.7957244655582
-epoch 2 / 10, NAdam accuracy = 95.8590657165479
-epoch 3 / 10, NAdam accuracy = 96.88836104513065
-epoch 4 / 10, NAdam accuracy = 96.56373713380839
-epoch 5 / 10, NAdam accuracy = 96.82501979414093
-epoch 6 / 10, NAdam accuracy = 97.49802058590657
-epoch 7 / 10, NAdam accuracy = 97.04671417260491
-epoch 8 / 10, NAdam accuracy = 97.30007917656374
-epoch 9 / 10, NAdam accuracy = 97.49802058590657
 epoch 10 / 10, NAdam accuracy = 97.53760886777513
 ---------------------------------
 epoch 1 / 10, RAdam accuracy = 97.65637371338084
-epoch 2 / 10, RAdam accuracy = 97.88598574821853
-epoch 3 / 10, RAdam accuracy = 95.40775930324624
-epoch 4 / 10, RAdam accuracy = 96.65874901029295
-epoch 5 / 10, RAdam accuracy = 97.61678543151227
-epoch 6 / 10, RAdam accuracy = 97.70387965162311
-epoch 7 / 10, RAdam accuracy = 96.61124307205067
-epoch 8 / 10, RAdam accuracy = 97.20506730007918
-epoch 9 / 10, RAdam accuracy = 97.41884402216944
 epoch 10 / 10, RAdam accuracy = 97.89390340459224
 ---------------------------------
 epoch 1 / 10, RMSprop accuracy = 96.6825019794141
-epoch 2 / 10, RMSprop accuracy = 96.3895486935867
-epoch 3 / 10, RMSprop accuracy = 96.95170229612035
-epoch 4 / 10, RMSprop accuracy = 97.33174980205858
-epoch 5 / 10, RMSprop accuracy = 97.6959619952494
-epoch 6 / 10, RMSprop accuracy = 97.64053840063342
-epoch 7 / 10, RMSprop accuracy = 97.3396674584323
-epoch 8 / 10, RMSprop accuracy = 97.60886777513856
-epoch 9 / 10, RMSprop accuracy = 97.1021377672209
 epoch 10 / 10, RMSprop accuracy = 97.34758511480601
 ---------------------------------
 epoch 1 / 10, Rprop accuracy = 96.06492478226446
-epoch 2 / 10, Rprop accuracy = 95.69279493269993
-epoch 3 / 10, Rprop accuracy = 94.33887569279493
-epoch 4 / 10, Rprop accuracy = 94.57640538400634
-epoch 5 / 10, Rprop accuracy = 93.18289786223278
-epoch 6 / 10, Rprop accuracy = 92.50197941409343
-epoch 7 / 10, Rprop accuracy = 93.11955661124307
-epoch 8 / 10, Rprop accuracy = 91.79730799683293
-epoch 9 / 10, Rprop accuracy = 91.44893111638956
 epoch 10 / 10, Rprop accuracy = 91.97941409342835
 ```
 # Best Final Results Per Optimizer:
+## Results
 
-### Adamax accuracy = 98.49564528899447 
-##### Rprop accuracy = 96.06492478226446
-##### RMSprop accuracy = 97.6959619952494
-##### RAdam accuracy = 97.89390340459224
-##### NAdam accuracy = 97.53760886777513
-##### AdamW accuracy = 97.61678543151227
-##### Adagrad accuracy = 97.70387965162311
-##### Adadelta accuracy = 96.83293745051465
-##### ASGD accuracy = 96.78543151227237
-##### ADAM accuracy = 97.06254948535233
-##### SGD accuracy = 96.57957244655582
+- **Best Accuracy**: 98.5% (Adamax optimizer)
+- **Training Time**: ~2 hours on GPU
 
-
+| Optimizer | Final Accuracy |
+|-----------|----------------|
+| Adamax    | 98.5%         |
+| RMSprop   | 97.9%         |
+| RAdam     | 97.7%         |
+| Adagrad   | 97.7%         |
+| AdamW     | 97.6%         |
+| NAdam     | 97.5%         |
+| ADAM      | 97.0%         |
+| Adadelta  | 96.8%         |
+| ASGD      | 96.7%         |
+| SGD       | 96.5%         |
